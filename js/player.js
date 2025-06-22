@@ -4,6 +4,7 @@ class Player {
     this.x = x;
     this.y = y;
     this.size = playerSize;
+    this.shipRotation = null;
   }
 
   draw() {
@@ -29,7 +30,7 @@ class Player {
     } else {
       shipRotation = shipRotation / 2; //face top of screen
     }
-
+    this.shipRotation = shipRotation;
     ctx.rotate(shipRotation);
     ctx.translate(-this.x, -this.y);
   }

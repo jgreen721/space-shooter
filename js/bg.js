@@ -5,7 +5,7 @@ class Bg {
     this.x = 0;
     this.y = 0;
     this.offset = -canvas.height * 3;
-    this.offset = 0;
+    // this.offset = 0;
   }
 
   draw() {

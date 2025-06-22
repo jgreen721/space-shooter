@@ -138,13 +138,27 @@
         }, 250);
       };
 
+      function getBulletPOS(x, y) {
+        let new_angle = player.shipRotation;
+        let dist = new Vector(center_x, center_y).subtract(new Vector(x, y));
+        let mag = dist.mag();
+        let orig_angle = Math.atan2(dist.y, dist.x);
+        let newX = center_x + mag * Math.cos(new_angle + orig_angle);
+        let newY = center_y + mag * Math.sin(new_angle + orig_angle);
+        return {
+          x: newX,
+          y: newY,
+        };
+      }
+
       onclick = () => {
+        let bulletPOS = getBulletPOS(center_x + 65, center_y);
         let vel = mouse
-          .subtract(new Vector(center_x, center_y - 65))
+          .subtract(new Vector(bulletPOS.x, bulletPOS.y))
           .unit()
           .multiply(4);
         bullets.push(
-          new Bullet(imgMap["lobstermorph"], center_x, center_y - 65, vel)
+          new Bullet(imgMap["lobstermorph"], bulletPOS.x, bulletPOS.y, vel)
         );
         console.log(bullets);
       };
