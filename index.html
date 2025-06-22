@@ -140,6 +140,9 @@
       };
 
       function getBulletPOS(x, y) {
+        player.shipRotation -= angle;
+        angle = mouse.subtract(new Vector(center.x, center.y)).angle();
+        player.shipRotation += angle;
         let new_angle = player.shipRotation;
         let dist = new Vector(center_x, center_y).subtract(new Vector(x, y));
         let mag = dist.mag();
