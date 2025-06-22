@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+    </style>
+    <title>Space Shooter</title>
+  </head>
+  <body>
+    <canvas></canvas>
+    <script>
+      let mouse;
+      let angle;
+
+      onmousemove = (e) => {
+        mouse = {
+          x: e.clientX,
+          y: e.clientY,
+        };
+        mouse = new Vector(mouse.x, mouse.y);
+      };
+    </script>
+    <script src="js/vector.js"></script>
+    <script src="js/bg.js"></script>
+    <script src="js/planet.js"></script>
+    <script src="js/bullet.js"></script>
+    <script src="js/player.js"></script>
+    <script>
+      let canvas = document.querySelector("canvas");
+      let ctx = canvas.getContext("2d");
+      canvas.width = innerWidth;
+      canvas.height = innerHeight;
+      ctx.fillStyle = "black";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      let imgPaths = [
+        "asteroid.png",
+        "background.png",
+        "beetlemorph.png",
+        "flip_bg.png",
+        "lobstermorph.png",
+        "planet.png",
+        "player.png",
+        "rhinomorph.png",
+      ];
+      let imgMap = {};
+      let player;
+      let player_size = 50;
+      let planet;
+      let bg;
+      let enemies = [];
+      let bullets = [];
+      let center_x = canvas.width / 2;
+      let center_y = canvas.height / 2;
+      let planet_size = 125;
+      let initial_offset = canvas.height * 3;
+      let game_has_begun = false;
+      let player_score = 0;
+
+      function gameStats() {
+        ctx.font = "18px Arial";
+        ctx.fillStyle = "white";
+        ctx.fillText(`Score: ${player_score}`, 10, 30);
+      }
+
+      function createImage(srcPath) {
+        return new Promise((resolve, reject) => {
+          let img = new Image();
+          img.onerror = () => reject(`Unable to load img-${srcPath}`);
+          img.onload = () => resolve(img);
+          img.src = `assets/${srcPath}`;
+        });
+      }
+
+      async function loadAssets() {
+        try {
+          let imgs = await Promise.all(imgPaths.map(createImage));
+          console.log("Images", imgs);
+          populateImgMap(imgs);
+        } catch (e) {
+          console.log("Error", e);
+        }
+      }
+
+      loadAssets();
+
+      function populateImgMap(imgs) {
+        imgs.forEach((img, idx) => {
+          let key = imgPaths[idx].split(".")[0];
+          imgMap[key] = img;
+        });
+
+        createInstances();
+      }
+
+      function createInstances() {
+        console.log("create instances fired!");
+        player = new Player(imgMap["player"], center_x, center_y, player_size);
+        bg = new Bg(imgMap["background"], imgMap["flip_bg"]);
+        planet = new Planet(imgMap["planet"], center_x, center_y, planet_size);
+        gameLoop();
+      }
+
+      function gameLoop() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        bg.draw();
+        if (game_has_begun) gameStats();
+
+        planet.draw();
+        player.draw();
+        if (!planet.toSpin) planet.update(bg.offset);
+        else {
+          if (!game_has_begun) game_has_begun = true;
+        }
+
+        bullets.forEach((bullet, idx) => {
+          bullet.draw();
+        });
+        requestAnimationFrame(gameLoop);
+      }
+
+      let resizeInt;
+      onresize = () => {
+        if (resizeInt) clearTimeout(resizeInt);
+        resizeInt = setTimeout(() => {
+          canvas.width = innerWidth;
+          canvas.height = innerHeight;
+          center_x = canvas.width / 2;
+          center_y = canvas.height / 2;
+          player.x = center_x;
+          planet.x = center_x;
+        }, 250);
+      };
+
+      onclick = () => {
+        let vel = mouse
+          .subtract(new Vector(center_x, center_y - 65))
+          .unit()
+          .multiply(4);
+        bullets.push(
+          new Bullet(imgMap["lobstermorph"], center_x, center_y - 65, vel)
+        );
+        console.log(bullets);
+      };
+    </script>
+  </body>
+</html>
