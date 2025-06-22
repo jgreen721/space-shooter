@@ -20,6 +20,7 @@
       let angle;
 
       onmousemove = (e) => {
+        if (!game_has_begun) return;
         mouse = {
           x: e.clientX,
           y: e.clientY,
